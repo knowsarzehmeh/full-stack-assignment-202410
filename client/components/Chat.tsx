@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "./ui/button";
+import axiosInstance from "@/service/axiosInstance";
+import { useSaveIdea } from "@/service/idea";
 
 type Message = {
   text: string;
@@ -12,15 +15,15 @@ const Chat = ({ onSaveIdea }: { onSaveIdea: (idea: string) => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
 
-  // Mock bot response generation
-  const generateBotResponse = (userMessage: string) => {
-    // Simulate a bot reply after user sends a message
-    const botReply = `Here's an idea based on "${userMessage}"`; // Mock bot idea generation
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: botReply, sender: "bot" },
-    ]);
-  };
+  // Mutation for sending messages
+  const sendMessageMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const response = await axiosInstance.post("/chat", { message });
+      return response.data.response;
+    },
+  });
+
+  const saveIdeaMutation = useSaveIdea();
 
   const sendMessage = () => {
     if (input.trim()) {
@@ -28,8 +31,16 @@ const Chat = ({ onSaveIdea }: { onSaveIdea: (idea: string) => void }) => {
       setMessages((prevMessages) => [...prevMessages, userMessage]);
       setInput(""); // Clear the input field after sending
 
-      // Generate a bot response after sending the user's message
-      setTimeout(() => generateBotResponse(userMessage.text), 1000);
+      // Use the mutation to send the message
+      sendMessageMutation.mutate(input, {
+        onSuccess: (botResponse: string) => {
+          const botMessage: Message = { text: botResponse, sender: "bot" };
+          setMessages((prevMessages) => [...prevMessages, botMessage]);
+        },
+        onError: (error) => {
+          console.error("Error sending message:", error);
+        },
+      });
     }
   };
 
@@ -46,7 +57,10 @@ const Chat = ({ onSaveIdea }: { onSaveIdea: (idea: string) => void }) => {
             <span className="text-gray-900 dark:text-white">{msg.text}</span>
             {msg.sender === "bot" && (
               <Button
-                onClick={() => onSaveIdea(msg.text)}
+                onClick={() => {
+                  onSaveIdea(msg.text);
+                  saveIdeaMutation.mutate(msg.text);
+                }}
                 variant="secondary"
                 size="sm"
               >

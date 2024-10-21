@@ -1,34 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useClearIdeas, useSavedIdeas } from "@/service/idea";
 import { Button } from "./ui/button";
 
-const SavedIdeas = ({ ideas }: { ideas: string[] }) => {
-  const [savedIdeas, setSavedIdeas] = useState<string[]>(ideas);
+const SavedIdeas = () => {
+  const { data: ideas, isLoading } = useSavedIdeas();
+  const clearIdeasMutation = useClearIdeas();
 
-  const clearIdeas = () => {
-    setSavedIdeas([]); // Clear the saved ideas
-  };
+  if (isLoading) return <p>Loading ideas...</p>;
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-900 h-full">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-        Saved Ideas
-      </h2>
-      {savedIdeas.length === 0 ? (
-        <p className="text-gray-700 dark:text-gray-300">No ideas saved yet.</p>
-      ) : (
-        <ul className="mt-4">
-          {savedIdeas.map((idea, index) => (
-            <li key={index} className="mb-2 text-gray-900 dark:text-white">
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Saved Ideas</h2>
+      <ul className="list-disc pl-5">
+        {ideas?.length > 0 ? (
+          ideas.map((idea: string, index: number) => (
+            <li key={index} className="text-gray-900 dark:text-white">
               {idea}
             </li>
-          ))}
-        </ul>
+          ))
+        ) : (
+          <p>No saved ideas yet.</p>
+        )}
+      </ul>
+
+      {ideas?.length > 0 && (
+        <Button
+          onClick={() => clearIdeasMutation.mutate()}
+          variant="destructive"
+          size="sm"
+          className="mt-4"
+        >
+          Clear All Ideas
+        </Button>
       )}
-      <Button onClick={clearIdeas} className="mt-4">
-        Clear Ideas
-      </Button>
     </div>
   );
 };
