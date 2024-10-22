@@ -3,6 +3,11 @@
 import { useClearIdeas, useSavedIdeas } from "@/service/idea";
 import { Button } from "./ui/button";
 
+interface Idea {
+  id: number;
+  idea: string;
+}
+
 const SavedIdeas = () => {
   const { data: ideas, isLoading } = useSavedIdeas();
   const clearIdeasMutation = useClearIdeas();
@@ -14,9 +19,9 @@ const SavedIdeas = () => {
       <h2 className="text-xl font-bold mb-4">Saved Ideas</h2>
       <ul className="list-disc pl-5">
         {ideas?.length > 0 ? (
-          ideas.map((idea: string, index: number) => (
+          ideas.map((data: Idea, index: number) => (
             <li key={index} className="text-gray-900 dark:text-white">
-              {idea}
+              {data.idea}
             </li>
           ))
         ) : (
