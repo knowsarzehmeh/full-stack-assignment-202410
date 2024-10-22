@@ -1,5 +1,7 @@
 AI Brainstorming Chat using OpenAI gpt-3.5-turbo-0125 model
 
+<img width="1440" alt="Screenshot 2024-10-22 at 10 32 17" src="https://github.com/user-attachments/assets/84635405-1ef7-4dbd-8244-5a3990674a28">
+
 # Instuction on how to run project
 
 1. Clone repository
